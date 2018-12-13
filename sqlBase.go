@@ -7,17 +7,6 @@ import (
 	_ "github.com/go-sql-driver/mysql" //..
 )
 
-// DbDeploy 初始化数据库连接信息
-type DbDeploy struct {
-	//mysql data source name
-	Dsn       string // 数据连接访问路径
-	User      string // 数据库用户名
-	Password  string // 数据库密码
-	IPAddress string // 数据库访问IP地址
-	Port      string // 数据库访问端口号
-	DataType  string // 数据库类型
-}
-
 // DbWorker ...
 type DbWorker struct {
 	DbDeploy // 连接库连接信息
@@ -42,6 +31,10 @@ type ParamList []ParamMap
 
 // openDb 打开数据库连接
 func openDb(dbWorker *DbWorker) *sql.DB {
+	//	dbWorker..deployDBInfo(&dbWorker.DbDeploy)
+	err := dbWorker.DbDeploy.deployDBInfo()
+	checkErr(err)
+	fmt.Printf("%+v\n", dbWorker)
 	db, err := sql.Open("mysql", dbWorker.Dsn)
 	checkErr(err)
 	return db
