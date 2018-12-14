@@ -34,6 +34,9 @@ func (dd *DbDeploy) deployDBInfo() (err error) {
 	// 如果Dsn未被设置，则根据参数类型拼接Dsn
 	if dd.Dsn == "" {
 		err = dd.checkDbDeploy()
+		if err != nil {
+			return err
+		}
 		switch dd.DataType {
 		case "mySql":
 			dd.Dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dd.User, dd.Password, dd.IPAddress, dd.Port, dd.DataName)
