@@ -3,6 +3,7 @@ package earPicking
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 // DbDeploy 初始化数据库连接信息
@@ -37,8 +38,9 @@ func (dd *DbDeploy) deployDBInfo() (err error) {
 		if err != nil {
 			return err
 		}
-		switch dd.DataType {
-		case "mySql":
+		// 统一转换成小写，根据数据库类型设置dsn
+		switch strings.ToLower(dd.DataType) {
+		case "mysql":
 			dd.Dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dd.User, dd.Password, dd.IPAddress, dd.Port, dd.DataName)
 		default:
 			err = ErrDataTypeNotExist

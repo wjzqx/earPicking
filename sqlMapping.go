@@ -3,8 +3,11 @@ package earPicking
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"reflect"
 	"strconv"
+
+	"github.com/mySimpleCache/util"
 )
 
 // queryRes 查询结果
@@ -41,8 +44,9 @@ func (qr *queryRes) formatRes(rows *sql.Rows) error {
 	}
 
 	qr.data = recordList
-	// jsonStr, err := util.ToJsonStr(recordList)
-	// fmt.Println(jsonStr)
+	jsonStr, err := util.ToJsonStr(recordList)
+	fmt.Println(jsonStr)
+	checkErr(err)
 	rows.Close()
 
 	return nil
@@ -53,6 +57,47 @@ func (qr *queryRes) formatRes(rows *sql.Rows) error {
 func (qr *queryRes) Unique(in interface{}) error {
 	if len(qr.data) > 0 {
 		return qr.mapping(qr.data[0], reflect.ValueOf(in))
+	}
+	return nil
+}
+
+// List 集合对象映射
+func (qr *queryRes) List(in interface{}) error {
+
+	if qr.err != nil {
+		return qr.err
+	}
+
+	length := len(qr.data)
+
+	if length > 0 {
+		v := reflect.ValueOf(in).Elem()
+		fmt.Printf("v  %+v\n", v)
+		newv := reflect.MakeSlice(v.Type(), 0, length)
+		fmt.Printf("v  %+v\n", v)
+
+		v.Set(newv)
+		v.SetLen(length)
+
+		index := 0
+		for i := 0; i < length; i++ {
+			k := v.Type().Elem()
+			newObj := reflect.New(k)
+			err := qr.mapping(qr.data[i], newObj)
+			if err != nil {
+				return err
+			}
+
+			n := reflect.ValueOf(newObj)
+			fmt.Printf("n  %+v\n", n)
+			m := reflect.ValueOf(v.Index(index))
+			m = n
+			fmt.Printf("v.  %+v\n", m)
+
+			//v.Index(index).Set(newObj)
+			index++
+		}
+		v.SetLen(index)
 	}
 	return nil
 }

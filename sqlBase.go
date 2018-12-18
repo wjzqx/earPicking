@@ -34,7 +34,7 @@ func openDb(dbWorker *DbWorker) *sql.DB {
 	//	dbWorker..deployDBInfo(&dbWorker.DbDeploy)
 	err := dbWorker.DbDeploy.deployDBInfo()
 	checkErr(err)
-	fmt.Printf("%+v\n", dbWorker)
+	//fmt.Printf("%+v\n", dbWorker)
 	db, err := sql.Open("mysql", dbWorker.Dsn)
 	checkErr(err)
 	return db
