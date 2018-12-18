@@ -40,7 +40,7 @@ func (dd *DbDeploy) deployDBInfo() (err error) {
 		}
 		// 统一转换成小写，根据数据库类型设置dsn
 		switch strings.ToLower(dd.DataType) {
-		case "mysql":
+		case "mySql":
 			dd.Dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dd.User, dd.Password, dd.IPAddress, dd.Port, dd.DataName)
 		default:
 			err = ErrDataTypeNotExist
