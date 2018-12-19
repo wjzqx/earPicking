@@ -20,13 +20,14 @@ type DbDeploy struct {
 
 // 声明异常常量
 var (
-	ErrDataTypeNotExist = errors.New("无数据库类型")      // ErrDataType 没有该数据库类型
-	ErrDataTypeIsNull   = errors.New("数据库类型为空")     // ErrDataTypeIsNull 数据库类型为空
-	ErrUserIsNull       = errors.New("用户名为空")       // ErrUserIsNull 用户名为空
-	ErrPasswordIsNull   = errors.New("数据库密码为空")     // ErrPasswordIsNull 数据库密码为空
-	ErrIPAddressIsNull  = errors.New("数据库访问IP地址为空") // ErrIPAddressIsNull 数据库访问IP地址为空
-	ErrPortIsNull       = errors.New("数据库访问端口号为空")  // ErrPortIsNull 数据库访问端口号为空
-	ErrDataNameIsNull   = errors.New("数据库名称为空")     // ErrDataNameIsNull 数据库名称为空
+	ErrDataTypeNotExist     = errors.New("无数据库类型")      // ErrDataType 没有该数据库类型
+	ErrDataTypeIsNull       = errors.New("数据库类型为空")     // ErrDataTypeIsNull 数据库类型为空
+	ErrUserIsNull           = errors.New("用户名为空")       // ErrUserIsNull 用户名为空
+	ErrPasswordIsNull       = errors.New("数据库密码为空")     // ErrPasswordIsNull 数据库密码为空
+	ErrIPAddressIsNull      = errors.New("数据库访问IP地址为空") // ErrIPAddressIsNull 数据库访问IP地址为空
+	ErrPortIsNull           = errors.New("数据库访问端口号为空")  // ErrPortIsNull 数据库访问端口号为空
+	ErrDataNameIsNull       = errors.New("数据库名称为空")     // ErrDataNameIsNull 数据库名称为空
+	ErrorNeedPointerToSlice = errors.New("需要指向切片的指针")   // ErrorNeedPointerToSlice 需要指向切片的指针
 )
 
 // deployDBInfo 设置数据库连接信息

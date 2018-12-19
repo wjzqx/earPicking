@@ -71,34 +71,33 @@ func (qr *queryRes) List(in interface{}) error {
 	length := len(qr.data)
 
 	if length > 0 {
-		v := reflect.ValueOf(in).Elem()
-		fmt.Printf("v  %+v\n", v)
-		newv := reflect.MakeSlice(v.Type(), 0, length)
-		fmt.Printf("v  %+v\n", v)
+		sliceValue := reflect.Indirect(reflect.ValueOf(in))
 
-		v.Set(newv)
-		v.SetLen(length)
+		if sliceValue.Kind() != reflect.Slice {
+			return ErrorNeedPointerToSlice
+		}
 
-		index := 0
-		for i := 0; i < length; i++ {
-			k := v.Type().Elem()
-			newObj := reflect.New(k)
-			err := qr.mapping(qr.data[i], newObj)
+		sliceElementType := sliceValue.Type().Elem()
+
+		for _, results := range qr.data {
+			newValue := reflect.New(sliceElementType)
+			err := qr.mapping(results, newValue)
 			if err != nil {
 				return err
 			}
 
-			n := reflect.ValueOf(newObj)
-			fmt.Printf("n  %+v\n", n)
-			m := reflect.ValueOf(v.Index(index))
-			m = n
-			fmt.Printf("v.  %+v\n", m)
+			fmt.Printf("sliceValue ： %+v\n", sliceValue)
 
-			//v.Index(index).Set(newObj)
-			index++
+			rTmep := reflect.Indirect(reflect.ValueOf(newValue.Interface()))
+
+			fmt.Printf("rTmep ： %+v\n", rTmep)
+			sliceValue.Set(reflect.Append(sliceValue, rTmep))
+
+			fmt.Printf("sliceValue111 ： %+v\n", sliceValue)
 		}
-		v.SetLen(index)
+
 	}
+
 	return nil
 }
 
