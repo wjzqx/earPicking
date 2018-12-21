@@ -3,11 +3,8 @@ package earPicking
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"reflect"
 	"strconv"
-
-	"github.com/mySimpleCache/util"
 )
 
 // queryRes 查询结果
@@ -44,9 +41,9 @@ func (qr *queryRes) formatRes(rows *sql.Rows) error {
 	}
 
 	qr.data = recordList
-	jsonStr, err := util.ToJsonStr(recordList)
-	fmt.Println(jsonStr)
-	checkErr(err)
+	// jsonStr, err := util.ToJsonStr(recordList)
+	// fmt.Println(jsonStr)
+	// checkErr(err)
 	rows.Close()
 
 	return nil
@@ -86,14 +83,14 @@ func (qr *queryRes) List(in interface{}) error {
 				return err
 			}
 
-			fmt.Printf("sliceValue ： %+v\n", sliceValue)
+			//fmt.Printf("sliceValue ： %+v\n", sliceValue)
 
 			rTmep := reflect.Indirect(reflect.ValueOf(newValue.Interface()))
 
-			fmt.Printf("rTmep ： %+v\n", rTmep)
+			//fmt.Printf("rTmep ： %+v\n", rTmep)
 			sliceValue.Set(reflect.Append(sliceValue, rTmep))
 
-			fmt.Printf("sliceValue111 ： %+v\n", sliceValue)
+			//fmt.Printf("sliceValue111 ： %+v\n", sliceValue)
 		}
 
 	}
