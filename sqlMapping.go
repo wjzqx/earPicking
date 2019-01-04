@@ -68,16 +68,22 @@ func (qr *queryRes) List(in interface{}) error {
 	length := len(qr.data)
 
 	if length > 0 {
+		// 1.reflect.ValueOf->获取接口保管的具体值(实例化)
+		// 2.Indirect->获取该值的指针值
 		sliceValue := reflect.Indirect(reflect.ValueOf(in))
 
+		// 如果该对象类型不是切片类型，则返回类型错误
 		if sliceValue.Kind() != reflect.Slice {
 			return ErrorNeedPointerToSlice
 		}
 
+		// 获取切片集合中的类型
 		sliceElementType := sliceValue.Type().Elem()
 
 		for _, results := range qr.data {
+			// 根据切片集合中的类型，创建新的实体
 			newValue := reflect.New(sliceElementType)
+			// 映射数据
 			err := qr.mapping(results, newValue)
 			if err != nil {
 				return err
@@ -85,9 +91,11 @@ func (qr *queryRes) List(in interface{}) error {
 
 			//fmt.Printf("sliceValue ： %+v\n", sliceValue)
 
+			// 获取映射后的对象实例的指针值
 			rTmep := reflect.Indirect(reflect.ValueOf(newValue.Interface()))
 
 			//fmt.Printf("rTmep ： %+v\n", rTmep)
+			// 将映射后的对象实例的指针值复制到源对象指针中
 			sliceValue.Set(reflect.Append(sliceValue, rTmep))
 
 			//fmt.Printf("sliceValue111 ： %+v\n", sliceValue)

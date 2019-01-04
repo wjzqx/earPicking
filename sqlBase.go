@@ -2,9 +2,7 @@ package earPicking
 
 import (
 	"database/sql"
-	"fmt"
-
-	_ "github.com/go-sql-driver/mysql" //..
+	_ "github.com/go-sql-driver/mysql" // ..
 )
 
 // DbWorker ...
@@ -55,12 +53,23 @@ func (dw *DbWorker) QueryData(sql string, args ...interface{}) *DbWorker {
 
 // InsertData 新增数据公共方法
 // @param sql 执行sql
-func (dw *DbWorker) InsertData(sql string) int {
+func (dw *DbWorker) dbExec(sql string, args ...interface{}) (int, error) {
 	db := openDb(dw)
-	rows, err := db.Query(sql)
-	fmt.Print(rows)
-	checkErr(err)
+	res, err := db.Exec(sql, args...)
+	if err != nil {
+		return -1, err
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		return -1, err
+	}
 	defer db.Close()
+	return int(id), nil
+}
+
+// InsertData 新增数据公共方法
+// @param sql 执行sql
+func (dw *DbWorker) InsertData(sql string) int {
 
 	return 0
 }
