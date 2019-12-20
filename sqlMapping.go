@@ -7,11 +7,30 @@ import (
 	"strconv"
 )
 
-// queryRes 查询结果
-type queryRes struct {
-	data []map[string]string // 存储数据库查询数据
-	err  error               // 异常
-}
+type (
+
+	// queryRes 查询结果
+	queryRes struct {
+		data []map[string]string // 存储数据库查询数据
+		err  error               // 异常
+
+	}
+
+	// tableInfo 表信息结构体
+	tableInfo struct {
+		tabName       string // 表名
+		primaryKey    string // 主键标识
+		limit         int    // 分页起始页
+		offset        int    // 分页结束页
+		sqlTemp       string // sql临时存储
+		whereTemp     string // sql条件临时存储
+
+		orderByTemp   string // 排序存储
+		groupByTemp   string // 分组聚合
+	}
+)
+
+var typeRegistry = make(map[string]reflect.Type)
 
 // formatRes 处理查询响应数据
 // @param rows 行是查询的结果
@@ -50,6 +69,8 @@ func (qr *queryRes) formatRes(rows *sql.Rows) error {
 
 }
 
+
+
 // Unique ...
 func (qr *queryRes) Unique(in interface{}) error {
 	if len(qr.data) > 0 {
@@ -58,7 +79,7 @@ func (qr *queryRes) Unique(in interface{}) error {
 	return nil
 }
 
-// List 集合对象映射
+// List 集合对象映射 (公共方法)
 func (qr *queryRes) List(in interface{}) error {
 
 	if qr.err != nil {
@@ -67,44 +88,63 @@ func (qr *queryRes) List(in interface{}) error {
 
 	length := len(qr.data)
 
+
 	if length > 0 {
-		// 1.reflect.ValueOf->获取接口保管的具体值(实例化)
-		// 2.Indirect->获取该值的指针值
-		sliceValue := reflect.Indirect(reflect.ValueOf(in))
-
-		// 如果该对象类型不是切片类型，则返回类型错误
-		if sliceValue.Kind() != reflect.Slice {
-			return ErrorNeedPointerToSlice
-		}
-
-		// 获取切片集合中的类型
-		sliceElementType := sliceValue.Type().Elem()
-
-		for _, results := range qr.data {
-			// 根据切片集合中的类型，创建新的实体
-			newValue := reflect.New(sliceElementType)
-			// 映射数据
-			err := qr.mapping(results, newValue)
-			if err != nil {
-				return err
-			}
-
-			//fmt.Printf("sliceValue ： %+v\n", sliceValue)
-
-			// 获取映射后的对象实例的指针值
-			rTmep := reflect.Indirect(reflect.ValueOf(newValue.Interface()))
-
-			//fmt.Printf("rTmep ： %+v\n", rTmep)
-			// 将映射后的对象实例的指针值复制到源对象指针中
-			sliceValue.Set(reflect.Append(sliceValue, rTmep))
-
-			//fmt.Printf("sliceValue111 ： %+v\n", sliceValue)
-		}
-
+		v := reflect.ValueOf(in)
+		qr.list(v)
 	}
 
 	return nil
 }
+
+func (qr *queryRes) unqiue(v reflect.Value)error{
+	if len(qr.data) > 0 {
+		return qr.mapping(qr.data[0], v)
+	}
+	return nil
+}
+
+// List 集合对象映射（私有方法）
+func (qr *queryRes) list(v reflect.Value) error{
+
+	// 1.reflect.ValueOf->获取接口保管的具体值(实例化)
+	// 2.Indirect->获取该值的指针值
+	sliceValue := reflect.Indirect(v)
+
+	// 如果该对象类型不是切片类型，则返回类型错误
+	if sliceValue.Kind() != reflect.Slice {
+		return ErrorNeedPointerToSlice
+	}
+
+	// 获取切片集合中的类型
+	sliceElementType := sliceValue.Type().Elem()
+
+	for _, results := range qr.data {
+		// 根据切片集合中的类型，创建新的实体
+		newValue := reflect.New(sliceElementType)
+		// 映射数据
+		err := qr.mapping(results, newValue)
+		if err != nil {
+			return err
+		}
+
+		//fmt.Printf("sliceValue ： %+v\n", sliceValue)
+
+		// 获取映射后的对象实例的指针值
+		rTmep := reflect.Indirect(reflect.ValueOf(newValue.Interface()))
+
+		//fmt.Printf("rTmep ： %+v\n", rTmep)
+		// 将映射后的对象实例的指针值复制到源对象指针中
+		sliceValue.Set(reflect.Append(sliceValue, rTmep))
+
+		//fmt.Printf("sliceValue111 ： %+v\n", sliceValue)
+	}
+
+
+	return nil
+}
+
+
 
 // 处理结构体于查询数据之间的映射关系
 func (qr *queryRes) mapping(m map[string]string, v reflect.Value) error {
@@ -127,6 +167,7 @@ func (qr *queryRes) mapping(m map[string]string, v reflect.Value) error {
 		if len(tag) > 0 {
 			meta, ok := m[tag]
 			if !ok {
+
 				continue
 			}
 			// 判断字段是否有读写权限
