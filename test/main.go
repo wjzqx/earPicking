@@ -11,6 +11,19 @@ type Activity struct  {
 	Name string `col:"dataName" json:"dataName"`
 }
 
+type Source struct {
+	ID          int64  `col:"id" json:"id"`
+	Name        string `col:"dataName" json:"dataName"`
+	JdbcUrl     string `col:"jdbcUrl" json:"jdbcUrl"`
+	DriverClass string `col:"driverClass" json:"driverClass"`
+	User        string `col:"user" json:"user"`
+	Password    string `col:"password" json:"password"`
+	WriteOrRead int8   `col:"writeOrRead" json:"writeOrRead"`
+	CreateTime  int64  `col:"createTime" json:"createTime"`
+	Remake      string `col:"remake" json:"remake"`
+	Status      int8   `col:"status" json:"status"`
+}
+
 func main() {
 
 
@@ -26,10 +39,12 @@ func main() {
 	dbWorker.DataType = "mySql"
 	//dbWorker.Dsn = "root:123456@tcp(127.0.0.1:3306)/db_config"
 
-	testSelect(dbWorker)
-	testWhereSelect(dbWorker)
-	testGroupBy(dbWorker)
-	testOrderByList(dbWorker)
+	//testSelect(dbWorker)
+	//testWhereSelect(dbWorker)
+	//testGroupBy(dbWorker)
+	//testOrderByList(dbWorker)
+
+	testInster(dbWorker)
 
 
 	//err := dbWorker.QueryData("SELECT * FROM data_source WHERE id = ?", 1).Unique(&ret)
@@ -42,7 +57,7 @@ func main() {
 	//fmt.Printf("%+v\n", err)
 	//fmt.Printf("%+v\n", retList)
 
-	//code := dbWorker.InsertData("INSERT INTO data_source (id, dataName, jdbcUrl, driverClass, user, password, writeOrRead, createTime, remake, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",4,"db_config","jdbc:mysql://127.0.0.1:11306/db_config?useUnicode=true&characterEncoding=utf8","com.mysql.jdbc.Driver", "root", "123456", 1, 0, "", 1)
+	//code := dbWorker.ExecDate("INSERT INTO data_source (id, dataName, jdbcUrl, driverClass, user, password, writeOrRead, createTime, remake, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",5,"db_config111","jdbc:mysql://127.0.0.1:11306/db_config?useUnicode=true&characterEncoding=utf8","com.mysql.jdbc.Driver", "root", "123456", 1, 0, "", 1)
 	//fmt.Printf("%+v\n", code)
 
 	//code := dbWorker.DeleteData("DELETE FROM data_source WHERE id=?", 4)
@@ -83,7 +98,7 @@ func main() {
 
 
 func testSelect(dbWorker earPicking.DbWorker){
-	retList := []Activity{}
+	var retList []Activity
 	dbWorker.SetTableName("data_source").SelectAll(&retList)
 	fmt.Printf("testSelect %+v\n", retList)
 }
@@ -101,9 +116,15 @@ func testGroupBy(dbWorker earPicking.DbWorker){
 }
 
 func testOrderByList(dbWorker earPicking.DbWorker){
-	retList := []Activity{}
-	dbWorker.SetTableName("data_source").OrderBy("id", earPicking.SQL_OB_DESC).SelectAll(&retList)
+	var retList  []Activity
+	dbWorker.SetTableName("data_source").OrderBy("id", earPicking.SQL_OB_DESC).Where("remake = 1").SelectAll(&retList)
 	fmt.Printf("testOrderBy %+v\n", retList)
+}
+
+func testInster(dbWorker earPicking.DbWorker){
+	s := Source{4,"db_config","jdbc:mysql://127.0.0.1:11306/db_config?useUnicode=true&characterEncoding=utf8","com.mysql.jdbc.Driver", "root", "123456", 1, 0, "", 1}
+	code := dbWorker.SetTableName("data_source").InsertData(&s)
+	fmt.Printf("%+v\n", code)
 }
 
 //

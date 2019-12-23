@@ -221,3 +221,26 @@ func (qr *queryRes) mapping(m map[string]string, v reflect.Value) error {
 	}
 	return nil
 }
+
+func OjbToString(kind reflect.Kind, v interface{})(valStr string, err error){
+
+	meta := reflect.ValueOf(v)
+	switch kind {
+	case reflect.String:
+		str := "\"" +meta.String()+  "\""
+		return str, nil
+	case reflect.Int,reflect.Int8,reflect.Int16,reflect.Int32,reflect.Int64:
+		str := strconv.FormatInt(meta.Int(), 10)
+		return str,nil
+	case reflect.Float32, reflect.Float64:
+		str := strconv.FormatFloat(meta.Float(), 'f', -1, 32)
+		return str, nil
+	case reflect.Bool:
+		str := strconv.FormatBool(meta.Bool())
+		return str, nil
+	default:
+		return "", errors.New("没有对应的数据类型")
+	}
+
+}
+
