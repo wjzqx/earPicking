@@ -39,12 +39,14 @@ func main() {
 	dbWorker.DataType = "mySql"
 	//dbWorker.Dsn = "root:123456@tcp(127.0.0.1:3306)/db_config"
 
-	//testSelect(dbWorker)
+	testSelect(dbWorker)
 	//testWhereSelect(dbWorker)
 	//testGroupBy(dbWorker)
 	//testOrderByList(dbWorker)
 
-	testInster(dbWorker)
+	//testInster(dbWorker)
+	//testDel(dbWorker)
+	//testUpdate(dbWorker)
 
 
 	//err := dbWorker.QueryData("SELECT * FROM data_source WHERE id = ?", 1).Unique(&ret)
@@ -99,7 +101,7 @@ func main() {
 
 func testSelect(dbWorker earPicking.DbWorker){
 	var retList []Activity
-	dbWorker.SetTableName("data_source").SelectAll(&retList)
+	dbWorker.SetTableName("data_source").OrderBy("id", earPicking.SQL_OB_ASC).Limit("1,3").SelectAll(&retList)
 	fmt.Printf("testSelect %+v\n", retList)
 }
 
@@ -122,8 +124,32 @@ func testOrderByList(dbWorker earPicking.DbWorker){
 }
 
 func testInster(dbWorker earPicking.DbWorker){
-	s := Source{4,"db_config","jdbc:mysql://127.0.0.1:11306/db_config?useUnicode=true&characterEncoding=utf8","com.mysql.jdbc.Driver", "root", "123456", 1, 0, "", 1}
-	code := dbWorker.SetTableName("data_source").InsertData(&s)
+	var a Source
+	a.ID = 4
+	a.Name = "DB_CONFIG"
+	a.JdbcUrl = "jdbc:mysql://127.0.0.1:11306/db_config?useUnicode=true&characterEncoding=utf8"
+	a.DriverClass = "com.mysql.jdbc.Driver"
+	a.User = "root"
+	a.WriteOrRead= 1
+
+
+	code := dbWorker.SetTableName("data_source").InsertData(&a)
+	fmt.Printf("%+v\n", code)
+}
+
+func testDel(dbWorker earPicking.DbWorker){
+	code := dbWorker.SetTableName("data_source").Where("id=4").DeleteData()
+	fmt.Printf("%+v\n", code)
+}
+
+func testUpdate(dbWorker earPicking.DbWorker){
+	var a Source
+	a.Name = "DB_CONFIG123"
+
+	a.User = "admin"
+	a.Password ="654321"
+	a.WriteOrRead= 2
+	code := dbWorker.SetTableName("data_source").Where("id=4").ModifyData(&a)
 	fmt.Printf("%+v\n", code)
 }
 

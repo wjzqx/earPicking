@@ -24,9 +24,9 @@ type (
 		offset        int    // 分页结束页
 		sqlTemp       string // sql临时存储
 		whereTemp     string // sql条件临时存储
-
 		orderByTemp   string // 排序存储
 		groupByTemp   string // 分组聚合
+		limitTemp     string
 	}
 )
 

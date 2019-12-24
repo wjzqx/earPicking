@@ -34,7 +34,7 @@ var (
 
 // 声明sql语句常量
 var (
-	SQL_SELECT  = "SELECT _cols_ FROM _tableName_ _WHERE_ _GROUPBY_ _ORDERBY_ "
+	SQL_SELECT  = "SELECT _cols_ FROM _tableName_ _WHERE_ _GROUPBY_ _ORDERBY_ _LIMIT_ "
 	SQL_WHERE   = "WHERE _colContent_"
 	SQL_INSERT  = "INSERT INTO _tableName_ (_colName_) VALUES (_colValue_)"
 	SQL_UPDATE  = "UPDATE _tableName_ SET _colContent_ _WHERE_"
@@ -42,6 +42,7 @@ var (
 	SQL_CONTENT = "_colName_ = _colValue_"
 	SQL_GROUPBY = "GROUP BY _colContent_"
 	SQL_ORDERBY = "ORDER BY _colContent_"
+	SQL_LIMIT   = "LIMIT _colContent_"
 	SQL_OB_ASC  = "ASC"
 	SQL_OB_DESC = "DESC"
 
@@ -52,6 +53,7 @@ var (
 	STR_WHERE   = "_WHERE_"
 	STR_GROUPBY = "_GROUPBY_"
 	STR_ORDERBY = "_ORDERBY_"
+	STR_LIMIT   = "_LIMIT_"
 
 	STR_COLS      = "_cols_"
 	STR_COLNAME   = "_colName_"
