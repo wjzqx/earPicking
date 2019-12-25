@@ -31,6 +31,8 @@ func main() {
 
 
 	//ret := Activity{}
+
+	// 设置数据库连接信息
 	dbWorker.User = "root"
 	dbWorker.Password = "123456"
 	dbWorker.IPAddress = "127.0.0.1"
@@ -39,13 +41,20 @@ func main() {
 	dbWorker.DataType = "mySql"
 	//dbWorker.Dsn = "root:123456@tcp(127.0.0.1:3306)/db_config"
 
+	// 查询数据
 	testSelect(dbWorker)
+	// 条件查询
 	//testWhereSelect(dbWorker)
+	// 分组查询
 	//testGroupBy(dbWorker)
+	// 排序查询
 	//testOrderByList(dbWorker)
 
+	// 新增数据
 	//testInster(dbWorker)
+	// 删除数据
 	//testDel(dbWorker)
+	// 修改数据
 	//testUpdate(dbWorker)
 
 

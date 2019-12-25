@@ -104,9 +104,7 @@ func (dw *DbWorker) Select(in interface{}) (err error){
 	}
 
 	fmt.Printf("%+v\n", dw.sqlTemp)
-
 	dw.QueryData(dw.sqlTemp).unqiue(v)
-
 
 	return nil
 }
@@ -126,9 +124,7 @@ func (dw *DbWorker) SelectAll(in interface{}) (err error){
 	}
 
 	fmt.Printf("%+v\n", dw.sqlTemp)
-
 	dw.QueryData(dw.sqlTemp).list(v)
-
 
 	return nil
 }
@@ -157,7 +153,7 @@ func formatCols(v reflect.Value,sqlType string)(tag string, colVal string,conten
 				var _colVal = value.Interface()
 				kind := value.Kind()
 				if _colVal != "" && _colVal != nil {
-
+					//
 					v, _ := OjbToString(kind, _colVal)
 					if v != "0"{
 						// 获取字段注解
