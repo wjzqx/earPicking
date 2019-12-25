@@ -15,12 +15,6 @@ type (
 		queryRes  // 查询结果存储对象
 		tableInfo // 表信息结构体
 	}
-
-	// ParamMap 查询条件参数
-	ParamMap struct {
-		Key   string      // 参数名称
-		Value interface{} // 参数值
-	}
 )
 
 // checkErr 错误检测
@@ -30,9 +24,6 @@ func checkErr(err error) {
 		panic(err)
 	}
 }
-
-// ParamList 查询条件参数集合
-type ParamList []ParamMap
 
 // openDb 打开数据库连接
 func openDb(dbWorker *DbWorker) *sql.DB {
@@ -45,8 +36,10 @@ func openDb(dbWorker *DbWorker) *sql.DB {
 	return db
 }
 
-// QueryData 查询公共方法
-// @param sql 执行sql
+/**
+ * QueryData 查询公共方法
+ * @param sql 执行sql
+ */
 func (dw *DbWorker) QueryData(sql string, args ...interface{}) *DbWorker {
 	db := openDb(dw)
 	rows, err := db.Query(sql, args...)
@@ -58,7 +51,7 @@ func (dw *DbWorker) QueryData(sql string, args ...interface{}) *DbWorker {
 	return dw
 }
 
-// SetTableName 设置查询的表名
+// 设置查询的表名 tableName
 func (dw *DbWorker) SetTableName(tableName string) *DbWorker{
 	dw.tableInfo.tabName = tableName
 	return dw
@@ -104,9 +97,23 @@ func (dw *DbWorker) Select(in interface{}) (err error){
 	}
 
 	fmt.Printf("%+v\n", dw.sqlTemp)
-	dw.QueryData(dw.sqlTemp).unqiue(v)
+	dw.QueryData(dw.sqlTemp).toObject(v)
 
 	return nil
+}
+
+/**
+ * 查询一条数据，返回map对象
+ */
+func (dw *DbWorker) QueryToMap()(m map[string]string, err error){
+
+	dw.sqlTemp, err = dw.selectSql("*")
+	checkErr(err)
+	if err != nil{
+		return nil, err
+	}
+	fmt.Printf("%+v\n", dw.sqlTemp)
+	return dw.QueryData(dw.sqlTemp).ForMap(), nil
 }
 
 /**
@@ -124,7 +131,7 @@ func (dw *DbWorker) SelectAll(in interface{}) (err error){
 	}
 
 	fmt.Printf("%+v\n", dw.sqlTemp)
-	dw.QueryData(dw.sqlTemp).list(v)
+	dw.QueryData(dw.sqlTemp).toObjForList(v)
 
 	return nil
 }

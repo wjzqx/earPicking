@@ -42,7 +42,11 @@ func main() {
 	//dbWorker.Dsn = "root:123456@tcp(127.0.0.1:3306)/db_config"
 
 	// 查询数据
-	testSelect(dbWorker)
+	//testSelect(dbWorker)
+
+	// 查询数返回为MAP
+	//testSelectToMap(dbWorker)
+
 	// 条件查询
 	//testWhereSelect(dbWorker)
 	// 分组查询
@@ -58,8 +62,8 @@ func main() {
 	//testUpdate(dbWorker)
 
 
-	//err := dbWorker.QueryData("SELECT * FROM data_source WHERE id = ?", 1).Unique(&ret)
-
+	m := dbWorker.QueryData("SELECT * FROM data_source WHERE id = ?", 1).ForMap()
+	fmt.Printf("%+v\n", m)
 
 	// Activity结构体数组
 	//retList := []Activity{}
@@ -112,6 +116,11 @@ func testSelect(dbWorker earPicking.DbWorker){
 	var retList []Activity
 	dbWorker.SetTableName("data_source").OrderBy("id", earPicking.SQL_OB_ASC).Limit("1,3").SelectAll(&retList)
 	fmt.Printf("testSelect %+v\n", retList)
+}
+
+func testSelectToMap(dbWorker earPicking.DbWorker){
+	myMap, _ := dbWorker.SetTableName("data_source").Where("id = 1").ToMap()
+	fmt.Printf("testSelectToMap %+v\n", myMap)
 }
 
 func testWhereSelect(dbWorker earPicking.DbWorker){

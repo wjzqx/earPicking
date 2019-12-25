@@ -3,6 +3,7 @@ package earPicking
 import (
 	"database/sql"
 	"errors"
+
 	"reflect"
 	"strconv"
 )
@@ -11,9 +12,9 @@ type (
 
 	// queryRes 查询结果
 	queryRes struct {
+		isRun bool               // 是否查询过数据
 		data []map[string]string // 存储数据库查询数据
 		err  error               // 异常
-
 	}
 
 	// tableInfo 表信息结构体
@@ -69,10 +70,20 @@ func (qr *queryRes) formatRes(rows *sql.Rows) error {
 
 }
 
+// 返回map
+func (qr *queryRes) ForMap() (map[string]string){
+
+
+	if len(qr.data) > 0 {
+		return qr.data[0]
+	}
+	return nil
+}
+
 
 
 // Unique ...
-func (qr *queryRes) Unique(in interface{}) error {
+func (qr *queryRes) ToObject(in interface{}) error {
 	if len(qr.data) > 0 {
 		return qr.mapping(qr.data[0], reflect.ValueOf(in))
 	}
@@ -80,7 +91,7 @@ func (qr *queryRes) Unique(in interface{}) error {
 }
 
 // List 集合对象映射 (公共方法)
-func (qr *queryRes) List(in interface{}) error {
+func (qr *queryRes) ToObjForList(in interface{}) error {
 
 	if qr.err != nil {
 		return qr.err
@@ -91,13 +102,13 @@ func (qr *queryRes) List(in interface{}) error {
 
 	if length > 0 {
 		v := reflect.ValueOf(in)
-		qr.list(v)
+		qr.toObjForList(v)
 	}
 
 	return nil
 }
 
-func (qr *queryRes) unqiue(v reflect.Value)error{
+func (qr *queryRes) toObject(v reflect.Value)error{
 	if len(qr.data) > 0 {
 		return qr.mapping(qr.data[0], v)
 	}
@@ -105,7 +116,7 @@ func (qr *queryRes) unqiue(v reflect.Value)error{
 }
 
 // List 集合对象映射（私有方法）
-func (qr *queryRes) list(v reflect.Value) error{
+func (qr *queryRes) toObjForList(v reflect.Value) error{
 
 	// 1.reflect.ValueOf->获取接口保管的具体值(实例化)
 	// 2.Indirect->获取该值的指针值
