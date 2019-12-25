@@ -43,17 +43,14 @@ func main() {
 
 	// 查询数据
 	//testSelect(dbWorker)
-
 	// 查询数返回为MAP
 	//testSelectToMap(dbWorker)
-
 	// 条件查询
 	//testWhereSelect(dbWorker)
 	// 分组查询
 	//testGroupBy(dbWorker)
 	// 排序查询
 	//testOrderByList(dbWorker)
-
 	// 新增数据
 	//testInster(dbWorker)
 	// 删除数据
@@ -74,12 +71,6 @@ func main() {
 
 	//code := dbWorker.ExecDate("INSERT INTO data_source (id, dataName, jdbcUrl, driverClass, user, password, writeOrRead, createTime, remake, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",5,"db_config111","jdbc:mysql://127.0.0.1:11306/db_config?useUnicode=true&characterEncoding=utf8","com.mysql.jdbc.Driver", "root", "123456", 1, 0, "", 1)
 	//fmt.Printf("%+v\n", code)
-
-	//code := dbWorker.DeleteData("DELETE FROM data_source WHERE id=?", 4)
-	//fmt.Printf("%+v\n", code)
-	//dbWorker.QueryData("SELECT * FROM data_source WHERE id = ? and dataName = ?", nil)
-
-
 
 	// type db earPicking.DbWorker
 	//util.RegistryType((*db)(nil))
@@ -114,44 +105,44 @@ func main() {
 
 func testSelect(dbWorker earPicking.DbWorker){
 	var retList []Activity
-	dbWorker.SetTableName("data_source").OrderBy("id", earPicking.SQL_OB_ASC).Limit("1,3").SelectAll(&retList)
+	_ =dbWorker.SetTableName("data_source").OrderBy("id", earPicking.SQL_OB_ASC).Limit("1,3").SelectAll(&retList)
 	fmt.Printf("testSelect %+v\n", retList)
 }
 
 func testSelectToMap(dbWorker earPicking.DbWorker){
-	myMap, _ := dbWorker.SetTableName("data_source").Where("id = 1").ToMap()
+	myMap, _ := dbWorker.SetTableName("data_source").Where("id = 1").QueryToMap()
 	fmt.Printf("testSelectToMap %+v\n", myMap)
 }
 
 func testWhereSelect(dbWorker earPicking.DbWorker){
 	ret := Activity{}
-	dbWorker.SetTableName("data_source").Where("id = 1").Select(&ret)
+	_ =dbWorker.SetTableName("data_source").Where("id = 1").Select(&ret)
 	fmt.Printf("WhereSelect %+v\n", ret)
 }
 
 func testGroupBy(dbWorker earPicking.DbWorker){
 	ret := Activity{}
-	dbWorker.SetTableName("data_source").GroupBy("remake").Select(&ret)
+	_ =dbWorker.SetTableName("data_source").GroupBy("remake").Select(&ret)
 	fmt.Printf("testGroupBy %+v\n", ret)
 }
 
 func testOrderByList(dbWorker earPicking.DbWorker){
 	var retList  []Activity
-	dbWorker.SetTableName("data_source").OrderBy("id", earPicking.SQL_OB_DESC).Where("remake = 1").SelectAll(&retList)
+	_ = dbWorker.SetTableName("data_source").OrderBy("id", earPicking.SQL_OB_DESC).Where("remake = 1").SelectAll(&retList)
 	fmt.Printf("testOrderBy %+v\n", retList)
 }
 
 func testInster(dbWorker earPicking.DbWorker){
-	var a Source
-	a.ID = 4
-	a.Name = "DB_CONFIG"
-	a.JdbcUrl = "jdbc:mysql://127.0.0.1:11306/db_config?useUnicode=true&characterEncoding=utf8"
-	a.DriverClass = "com.mysql.jdbc.Driver"
-	a.User = "root"
-	a.WriteOrRead= 1
+	var source Source
 
+	source.ID = 4
+	source.Name = "DB_CONFIG"
+	source.JdbcUrl = "jdbc:mysql://127.0.0.1:11306/db_config?useUnicode=true&characterEncoding=utf8"
+	source.DriverClass = "com.mysql.jdbc.Driver"
+	source.User = "root"
+	source.WriteOrRead= 1
 
-	code := dbWorker.SetTableName("data_source").InsertData(&a)
+	code := dbWorker.SetTableName("data_source").InsertData(&source)
 	fmt.Printf("%+v\n", code)
 }
 
@@ -171,9 +162,3 @@ func testUpdate(dbWorker earPicking.DbWorker){
 	fmt.Printf("%+v\n", code)
 }
 
-//
-//type Addition struct {}
-//
-//func (Addition) Apply(lval, rval int) int{
-//	return lval + rval
-//}
