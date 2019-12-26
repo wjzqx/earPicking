@@ -43,8 +43,8 @@ var (
 	SQL_GROUPBY = "GROUP BY _colContent_"
 	SQL_ORDERBY = "ORDER BY _colContent_"
 	SQL_LIMIT   = "LIMIT _colContent_"
-	SQL_OB_ASC  = "ASC"
-	SQL_OB_DESC = "DESC"
+	SQL_OB_ASC  = "ASC"  // 正序
+	SQL_OB_DESC = "DESC" // 倒序
 
 	STR_SELECT = "select"
 	STR_INSERT = "insert"

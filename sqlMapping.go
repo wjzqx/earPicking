@@ -33,8 +33,11 @@ type (
 
 var typeRegistry = make(map[string]reflect.Type)
 
-// formatRes 处理查询响应数据
-// @param rows 行是查询的结果
+/**
+ * formatRes 处理查询响应数据, map对象映射（私有方法）
+ * @param rows 行是查询的结果
+ * @return error 错误信息，正常时，该值为nil
+ */
 func (qr *queryRes) formatRes(rows *sql.Rows) error {
 	columns, _ := rows.Columns()
 	scanArgs := make([]interface{}, len(columns))
@@ -70,7 +73,10 @@ func (qr *queryRes) formatRes(rows *sql.Rows) error {
 
 }
 
-// 返回map
+/**
+ * ForMap map对象映射（公共方法）
+ * @return map[string]string 返回map集合
+ */
 func (qr *queryRes) ForMap() (map[string]string){
 
 
@@ -80,9 +86,11 @@ func (qr *queryRes) ForMap() (map[string]string){
 	return nil
 }
 
-
-
-// Unique ...
+/**
+ * ToObject 实体对象映射（公共方法）
+ * @param v reflect.Value 填充数据的对象
+ * @return error 错误信息，正常时，该值为nil
+ */
 func (qr *queryRes) ToObject(in interface{}) error {
 	if len(qr.data) > 0 {
 		return qr.mapping(qr.data[0], reflect.ValueOf(in))
@@ -90,7 +98,11 @@ func (qr *queryRes) ToObject(in interface{}) error {
 	return nil
 }
 
-// List 集合对象映射 (公共方法)
+/**
+ * toObjForList 集合实体对象映射（公共方法）
+ * @param v reflect.Value 填充数据的对象
+ * @return error 错误信息，正常时，该值为nil
+ */
 func (qr *queryRes) ToObjForList(in interface{}) error {
 
 	if qr.err != nil {
@@ -108,6 +120,11 @@ func (qr *queryRes) ToObjForList(in interface{}) error {
 	return nil
 }
 
+/**
+ * toObject 实体对象映射（私有方法）
+ * @param v reflect.Value 填充数据的对象
+ * @return error 错误信息，正常时，该值为nil
+ */
 func (qr *queryRes) toObject(v reflect.Value)error{
 	if len(qr.data) > 0 {
 		return qr.mapping(qr.data[0], v)
@@ -115,7 +132,11 @@ func (qr *queryRes) toObject(v reflect.Value)error{
 	return nil
 }
 
-// List 集合对象映射（私有方法）
+/**
+ * toObjForList 集合实体对象映射（私有方法）
+ * @param v reflect.Value 填充数据的对象
+ * @return error 错误信息，正常时，该值为nil
+ */
 func (qr *queryRes) toObjForList(v reflect.Value) error{
 
 	// 1.reflect.ValueOf->获取接口保管的具体值(实例化)
@@ -157,7 +178,12 @@ func (qr *queryRes) toObjForList(v reflect.Value) error{
 
 
 
-// 处理结构体于查询数据之间的映射关系
+/**
+ * 处理结构体于查询数据之间的映射关系
+ * @param m map[string]string 数据源对象，存储数据源
+ * @param v reflect.Value 数据填充对象，用来接收数据
+ * @return error 错误信息，正常时，该值为nil
+ */
 func (qr *queryRes) mapping(m map[string]string, v reflect.Value) error {
 
 	t := v.Type()
@@ -189,7 +215,7 @@ func (qr *queryRes) mapping(m map[string]string, v reflect.Value) error {
 			if len(meta) == 0 {
 				continue
 			}
-
+			// 判读填充的数据类型，将值转换成对应的数据类型
 			if kind == reflect.String {
 				value.SetString(meta)
 			} else if kind == reflect.Float32 {

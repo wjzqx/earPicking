@@ -17,24 +17,6 @@ type (
 	}
 )
 
-// checkErr 错误检测
-func checkErr(err error) {
-	if err != nil {
-		fmt.Printf("%+v\n", err)
-		panic(err)
-	}
-}
-
-// openDb 打开数据库连接
-func openDb(dbWorker *DbWorker) *sql.DB {
-	//	dbWorker..deployDBInfo(&dbWorker.DbDeploy)
-	err := dbWorker.DbDeploy.deployDBInfo()
-	checkErr(err)
-	//fmt.Printf("%+v\n", dbWorker)
-	db, err := sql.Open("mysql", dbWorker.Dsn)
-	checkErr(err)
-	return db
-}
 
 /**
  * QueryData 查询公共方法
@@ -79,6 +61,7 @@ func (dw *DbWorker)OrderBy(col string, s string) *DbWorker{
 	return dw
 }
 
+// 设置分页字段
 func (dw *DbWorker)Limit(s string) *DbWorker{
 	dw.limitTemp = s
 	return dw
@@ -136,6 +119,99 @@ func (dw *DbWorker) SelectAll(in interface{}) (err error){
 	return nil
 }
 
+/**
+ * InsertData 新增数据公共方法
+ * @param in 参数对象
+ * @return code 0，执行失败，1,执行成功
+ */
+func (dw *DbWorker) InsertData(in interface{}) int {
+	v := reflect.ValueOf(in)
+	var err error
+	cols, vals, _ := formatCols(v, STR_INSERT)
+	dw.sqlTemp, err = dw.insertSql(cols,vals)
+	checkErr(err)
+	if err != nil{
+		return 0
+	}
+
+	fmt.Printf("sql: %+v\n", dw.sqlTemp)
+	code, err := dw.dbExec(dw.sqlTemp)
+
+	checkErr(err)
+	return code
+	//return 1
+}
+
+/**
+ * 执行增，删，改的sql语句
+ * @param sql 数据库语句
+ * @param args 参数
+ * @return code 执行后成功行数
+ */
+func (dw *DbWorker) ExecDate(sql string, args ...interface{}) int {
+	code, err := dw.dbExec(sql, args...)
+	checkErr(err)
+	return code
+}
+
+/**
+ * ModifyData 修改数据公共方法
+ * @param in 参数对象
+ * @return code 0，执行失败，1,执行成功
+ */
+func (dw *DbWorker) ModifyData(in interface{}) int {
+	code := 0
+
+	v := reflect.ValueOf(in)
+	var err error
+	_, _, content := formatCols(v, STR_UPDATE)
+	dw.sqlTemp, err = dw.updateSql(content)
+	checkErr(err)
+	if err != nil{
+		return 0
+	}
+	fmt.Printf("sql: %+v\n", dw.sqlTemp)
+
+
+	//	db := openDb(dw.Dsn)
+	code, err = dw.dbExec(dw.sqlTemp)
+	//checkErr(err)
+	return code
+}
+
+/**
+ * DeleteData 删除数据公共方法
+ * @return code 0，执行失败，1,执行成功
+ */
+func (dw *DbWorker) DeleteData() int {
+
+	var err error
+	dw.sqlTemp, err = dw.deleteSql()
+	fmt.Printf("sql: %+v\n", dw.sqlTemp)
+	code, err := dw.dbExec(dw.sqlTemp)
+	checkErr(err)
+	return code
+}
+
+// checkErr 错误检测
+func checkErr(err error) {
+	if err != nil {
+		fmt.Printf("%+v\n", err)
+		panic(err)
+	}
+}
+
+// openDb 打开数据库连接
+func openDb(dbWorker *DbWorker) *sql.DB {
+	//	dbWorker..deployDBInfo(&dbWorker.DbDeploy)
+	err := dbWorker.DbDeploy.deployDBInfo()
+	checkErr(err)
+	//fmt.Printf("%+v\n", dbWorker)
+	db, err := sql.Open("mysql", dbWorker.Dsn)
+	checkErr(err)
+	return db
+}
+
 func formatCols(v reflect.Value,sqlType string)(tag string, colVal string,content string){
 
 	t := v.Type()
@@ -190,6 +266,12 @@ func formatColsList (v reflect.Value, sqlType string)  string{
 	return res
 }
 
+/**
+ * 拼装insert语句
+ * @param cols 查询字段
+ * @return string sql语句
+ *         error
+ */
 func (ti *tableInfo) insertSql(cols string, val string) (string, error){
 	var res = SQL_INSERT
 
@@ -205,6 +287,12 @@ func (ti *tableInfo) insertSql(cols string, val string) (string, error){
 	return res, nil
 }
 
+/**
+ * 拼装delete语句
+ * @param cols 查询字段
+ * @return string sql语句
+ *         error
+ */
 func (ti *tableInfo) deleteSql()(string, error){
 
 	var res = SQL_DELETE
@@ -228,6 +316,12 @@ func (ti *tableInfo) deleteSql()(string, error){
 	return res, nil
 }
 
+/**
+ * 拼装update语句
+ * @param cols 查询字段
+ * @return string sql语句
+ *         error
+ */
 func (ti *tableInfo) updateSql(content string)(string, error){
 	var res = SQL_UPDATE
 	// 表名为必填项，没有设置表名则提示错误。
@@ -250,6 +344,12 @@ func (ti *tableInfo) updateSql(content string)(string, error){
 	return res, nil
 }
 
+/**
+ * 拼装select语句
+ * @param cols 查询字段
+ * @return string sql语句
+ *         error
+ */
 func (ti *tableInfo) selectSql(cols string) (string,error){
 	var res = SQL_SELECT
 
@@ -298,9 +398,12 @@ func (ti *tableInfo) selectSql(cols string) (string,error){
 	return res, nil
 }
 
-
-// InsertData 新增数据公共方法
-// @param sql 执行sql
+/**
+ * 执行增，删，改的业务方法
+ * @param sql 数据库语句
+ * @param args 参数
+ * @return code 执行后成功行数
+ */
 func (dw *DbWorker) dbExec(sql string, args ...interface{}) (int, error) {
 	db := openDb(dw)
 	res, err := db.Exec(sql, args...)
@@ -314,72 +417,3 @@ func (dw *DbWorker) dbExec(sql string, args ...interface{}) (int, error) {
 	defer db.Close()
 	return int(id), nil
 }
-
-// InsertData 新增数据公共方法
-// @param sql 执行sql
-func (dw *DbWorker) InsertData(in interface{}) int {
-	v := reflect.ValueOf(in)
-	var err error
-	cols, vals, _ := formatCols(v, STR_INSERT)
-	dw.sqlTemp, err = dw.insertSql(cols,vals)
-	checkErr(err)
-	if err != nil{
-		return 0
-	}
-
-	fmt.Printf("sql: %+v\n", dw.sqlTemp)
-	code, err := dw.dbExec(dw.sqlTemp)
-
-	checkErr(err)
-	return code
-	//return 1
-}
-
-/**
- * 执行增，删，改的sql语句
- * @param sql 数据库语句
- * @param args 参数
- * @return code 执行后成功行数
- */
-func (dw *DbWorker) ExecDate(sql string, args ...interface{}) int {
-	code, err := dw.dbExec(sql, args...)
-	checkErr(err)
-	return code
-}
-
-// ModifyData 修改数据公共方法
-// @param sql 执行sql
-func (dw *DbWorker) ModifyData(in interface{}) int {
-	code := 0
-
-	v := reflect.ValueOf(in)
-	var err error
-	_, _, content := formatCols(v, STR_UPDATE)
-	dw.sqlTemp, err = dw.updateSql(content)
-	checkErr(err)
-	if err != nil{
-		return 0
-	}
-	fmt.Printf("sql: %+v\n", dw.sqlTemp)
-
-
-	//	db := openDb(dw.Dsn)
-	code, err = dw.dbExec(dw.sqlTemp)
-	//checkErr(err)
-	return code
-}
-
-// DeleteData 删除数据公共方法
-// @param sql 执行sql
-func (dw *DbWorker) DeleteData() int {
-
-	var err error
-	dw.sqlTemp, err = dw.deleteSql()
-	fmt.Printf("sql: %+v\n", dw.sqlTemp)
-	code, err := dw.dbExec(dw.sqlTemp)
-	checkErr(err)
-	return code
-}
-
-
-

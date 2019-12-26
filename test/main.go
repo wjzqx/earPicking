@@ -42,7 +42,7 @@ func main() {
 	//dbWorker.Dsn = "root:123456@tcp(127.0.0.1:3306)/db_config"
 
 	// 查询数据
-	//testSelect(dbWorker)
+	testSelect(dbWorker)
 	// 查询数返回为MAP
 	//testSelectToMap(dbWorker)
 	// 条件查询
@@ -135,7 +135,7 @@ func testOrderByList(dbWorker earPicking.DbWorker){
 func testInster(dbWorker earPicking.DbWorker){
 	var source Source
 
-	source.ID = 4
+	source.ID = 5
 	source.Name = "DB_CONFIG"
 	source.JdbcUrl = "jdbc:mysql://127.0.0.1:11306/db_config?useUnicode=true&characterEncoding=utf8"
 	source.DriverClass = "com.mysql.jdbc.Driver"
