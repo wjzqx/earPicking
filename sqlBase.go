@@ -17,10 +17,10 @@ type (
 	}
 )
 
-
 /**
  * QueryData 查询公共方法
  * @param sql 执行sql
+ * @return DbWorker
  */
 func (dw *DbWorker) QueryData(sql string, args ...interface{}) *DbWorker {
 	db := openDb(dw)
@@ -33,25 +33,42 @@ func (dw *DbWorker) QueryData(sql string, args ...interface{}) *DbWorker {
 	return dw
 }
 
-// 设置查询的表名 tableName
+/**
+  * 设置查询的表名 SetTableName
+  * @param tableName 表名
+  * @return DbWorker
+  */
 func (dw *DbWorker) SetTableName(tableName string) *DbWorker{
 	dw.tableInfo.tabName = tableName
 	return dw
 }
 
-// 设置查询条件
+/**
+  * 设置查询条件 Where
+  * @param s 条件参数
+  * @return DbWorker
+  */
 func (dw *DbWorker) Where(s string) *DbWorker{
 	dw.whereTemp = s
 	return dw
 }
 
-// 设置分组聚合字段
+/**
+  * 设置分组聚合字段 GroupBy
+  * @param s 条件参数
+  * @return DbWorker
+  */
 func (dw *DbWorker)GroupBy(s string) *DbWorker{
 	dw.groupByTemp = s
 	return dw
 }
 
-// 设置排序字段
+/**
+ * 设置排序字段 OrderBy
+ * @param col 表字段
+ * @param s   条件参数
+ * @return DbWorker
+ */
 func (dw *DbWorker)OrderBy(col string, s string) *DbWorker{
 	if s == SQL_OB_DESC {
 		dw.orderByTemp = col + " " + s
@@ -61,13 +78,22 @@ func (dw *DbWorker)OrderBy(col string, s string) *DbWorker{
 	return dw
 }
 
-// 设置分页字段
+
+/**
+ * 设置分页字段 Limit
+ * @param s   条件参数
+ * @return DbWorker
+ */
 func (dw *DbWorker)Limit(s string) *DbWorker{
 	dw.limitTemp = s
 	return dw
 }
 
-// 查询语句
+/**
+ * 查询语句 Select
+ * @param in 条件参数
+ * @return DbWorker
+ */
 func (dw *DbWorker) Select(in interface{}) (err error){
 	v := reflect.ValueOf(in)
 	cols, _ , _:= formatCols(v, STR_SELECT)
@@ -86,10 +112,11 @@ func (dw *DbWorker) Select(in interface{}) (err error){
 }
 
 /**
- * 查询一条数据，返回map对象
+ * 查询一条数据，返回map对象 QueryToMap
+ * @return m    数据源
+ *	       err  nil
  */
 func (dw *DbWorker) QueryToMap()(m map[string]string, err error){
-
 	dw.sqlTemp, err = dw.selectSql("*")
 	checkErr(err)
 	if err != nil{
@@ -101,12 +128,12 @@ func (dw *DbWorker) QueryToMap()(m map[string]string, err error){
 
 /**
  * 查询所有数据
+ * @param in 转换数据对象
+ * @return err nil
  */
 func (dw *DbWorker) SelectAll(in interface{}) (err error){
-
 	v := reflect.ValueOf(in)
 	cols := formatColsList(v, STR_SELECT)
-
 	dw.sqlTemp, err = dw.selectSql(cols)
 
 	if err != nil{
@@ -139,7 +166,6 @@ func (dw *DbWorker) InsertData(in interface{}) int {
 
 	checkErr(err)
 	return code
-	//return 1
 }
 
 /**
@@ -213,7 +239,6 @@ func openDb(dbWorker *DbWorker) *sql.DB {
 }
 
 func formatCols(v reflect.Value,sqlType string)(tag string, colVal string,content string){
-
 	t := v.Type()
 	val := v.Elem()
 	typ := t.Elem()
